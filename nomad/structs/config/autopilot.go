@@ -14,11 +14,13 @@ type AutopilotConfig struct {
 	// ServerStabilizationTime is the minimum amount of time a server must be
 	// in a stable, healthy state before it can be added to the cluster. Only
 	// applicable with Raft protocol version 3 or higher.
-	ServerStabilizationTime time.Duration `mapstructure:"server_stabilization_time"`
+	ServerStabilizationTime    time.Duration
+	ServerStabilizationTimeHCL string `hcl:"server_stabilization_time"`
 
 	// LastContactThreshold is the limit on the amount of time a server can go
 	// without leader contact before being considered unhealthy.
-	LastContactThreshold time.Duration `mapstructure:"last_contact_threshold"`
+	LastContactThreshold    time.Duration
+	LastContactThresholdHCL string `hcl:"last_contact_threshold"`
 
 	// MaxTrailingLogs is the amount of entries in the Raft Log that a server can
 	// be behind before being considered unhealthy.
