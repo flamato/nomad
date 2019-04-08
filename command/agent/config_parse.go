@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strings"
 	"time"
 
 	multierror "github.com/hashicorp/go-multierror"
@@ -31,12 +33,12 @@ func ParseConfigFile(path string) (*Config, error) {
 	}
 	defer f.Close()
 
-	config, err := ParseConfig(f)
+	c, err := ParseConfig(f)
 	if err != nil {
 		return nil, err
 	}
 
-	return config, nil
+	return c, nil
 }
 
 func ParseConfigFileDirectHCL(path string) (*Config, error) {
@@ -62,7 +64,60 @@ func ParseConfigFileDirectHCL(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	err = durations([]convDur{
+		convDur{"gc_interval", &c.Client.GCInterval, &c.Client.GCIntervalHCL},
+		convDur{"acl.token_ttl", &c.ACL.TokenTTL, &c.ACL.TokenTTLHCL},
+		convDur{"acl.policy_ttl", &c.ACL.PolicyTTL, &c.ACL.PolicyTTLHCL},
+		convDur{"client.server_join.retry_interval", &c.Client.ServerJoin.RetryInterval, &c.Client.ServerJoin.RetryIntervalHCL},
+		convDur{"server.heartbeat_grace", &c.Server.HeartbeatGrace, &c.Server.HeartbeatGraceHCL},
+		convDur{"server.min_heartbeat_ttl", &c.Server.MinHeartbeatTTL, &c.Server.MinHeartbeatTTLHCL},
+		convDur{"server.retry_interval", &c.Server.RetryInterval, &c.Server.RetryIntervalHCL},
+		convDur{"consul.timeout", &c.Consul.Timeout, &c.Consul.TimeoutHCL},
+
+		convDur{"autopilot.server_stabilization_time", &c.Autopilot.ServerStabilizationTime, &c.Autopilot.ServerStabilizationTimeHCL},
+		convDur{"autopilot.last_contact_threshold", &c.Autopilot.LastContactThreshold, &c.Autopilot.LastContactThresholdHCL},
+		convDur{"telemetry.collection_interval", &c.Telemetry.collectionInterval, &c.Telemetry.CollectionInterval},
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return c, nil
+}
+
+type convDur struct {
+	path string
+	td   *time.Duration
+	str  *string
+}
+
+func durations(xs []convDur) error {
+	for _, x := range xs {
+		if "" != *x.str {
+			d, err := time.ParseDuration(*x.str)
+			if err != nil {
+				return fmt.Errorf("%s can't parse time duration %s", x.path, *x.str)
+			}
+			*x.td = d
+			*x.str = ""
+		}
+	}
+	return nil
+}
+
+type ex struct {
+	path string
+	part interface{}
+}
+
+func extraKeys(xs []ex) error {
+	for _, x := range xs {
+		unused := reflect.Value(x).Type().FieldByName("unusedKeys")
+		if len(unused) != 0 {
+			return fmt.Errorf("%s unexpected keys %s", x.path, strings.Join(unused, ", "))
+		}
+	}
 }
 
 // ParseConfig parses the config from the given io.Reader.
