@@ -56,7 +56,8 @@ type ConsulConfig struct {
 	Addr string `mapstructure:"address" hcl:"address"`
 
 	// Timeout is used by Consul HTTP Client
-	Timeout time.Duration `mapstructure:"timeout"`
+	Timeout    time.Duration `mapstructure:"timeout"`
+	TimeoutHCL string        `hcl:"timeout"`
 
 	// Token is used to provide a per-request ACL token. This options overrides
 	// the agent's default token
