@@ -205,7 +205,8 @@ type ClientConfig struct {
 
 	// GCInterval is the time interval at which the client triggers garbage
 	// collection
-	GCInterval time.Duration `mapstructure:"gc_interval"`
+	GCInterval    time.Duration
+	GCIntervalHCL string `hcl:"gc_interval"`
 
 	// GCParallelDestroys is the number of parallel destroys the garbage
 	// collector will allow.
@@ -213,11 +214,11 @@ type ClientConfig struct {
 
 	// GCDiskUsageThreshold is the disk usage threshold given as a percent
 	// beyond which the Nomad client triggers GC of terminal allocations
-	GCDiskUsageThreshold float64 `mapstructure:"gc_disk_usage_threshold"`
+	GCDiskUsageThreshold float64 `hcl:"gc_disk_usage_threshold"`
 
 	// GCInodeUsageThreshold is the inode usage threshold beyond which the Nomad
 	// client triggers GC of the terminal allocations
-	GCInodeUsageThreshold float64 `mapstructure:"gc_inode_usage_threshold"`
+	GCInodeUsageThreshold float64 `hcl:"gc_inode_usage_threshold"`
 
 	// GCMaxAllocs is the maximum number of allocations a node can have
 	// before garbage collection is triggered.
@@ -240,13 +241,15 @@ type ACLConfig struct {
 	// how stale they can be when we are enforcing policies. Defaults
 	// to "30s". Reducing this impacts performance by forcing more
 	// frequent resolution.
-	TokenTTL time.Duration `mapstructure:"token_ttl"`
+	TokenTTL    time.Duration
+	TokenTTLHCL string `hcl:"token_ttl"`
 
 	// PolicyTTL controls how long we cache ACL policies. This controls
 	// how stale they can be when we are enforcing policies. Defaults
 	// to "30s". Reducing this impacts performance by forcing more
 	// frequent resolution.
-	PolicyTTL time.Duration `mapstructure:"policy_ttl"`
+	PolicyTTL    time.Duration
+	PolicyTTLHCL string `hcl:"policy_ttl"`
 
 	// ReplicationToken is used by servers to replicate tokens and policies
 	// from the authoritative region. This must be a valid management token
@@ -309,16 +312,18 @@ type ServerConfig struct {
 
 	// HeartbeatGrace is the grace period beyond the TTL to account for network,
 	// processing delays and clock skew before marking a node as "down".
-	HeartbeatGrace time.Duration `mapstructure:"heartbeat_grace"`
+	HeartbeatGrace    time.Duration
+	HeartbeatGraceHCL string `hcl:"heartbeat_grace"`
 
 	// MinHeartbeatTTL is the minimum time between heartbeats. This is used as
 	// a floor to prevent excessive updates.
-	MinHeartbeatTTL time.Duration `mapstructure:"min_heartbeat_ttl"`
+	MinHeartbeatTTL    time.Duration
+	MinHeartbeatTTLHCL string `hcl:"min_heartbeat_ttl"`
 
 	// MaxHeartbeatsPerSecond is the maximum target rate of heartbeats
 	// being processed per second. This allows the TTL to be increased
 	// to meet the target rate.
-	MaxHeartbeatsPerSecond float64 `mapstructure:"max_heartbeats_per_second"`
+	MaxHeartbeatsPerSecond float64 `hcl:"max_heartbeats_per_second"`
 
 	// StartJoin is a list of addresses to attempt to join when the
 	// agent starts. If Serf is unable to communicate with any of these
@@ -340,7 +345,8 @@ type ServerConfig struct {
 	// attempts on agent start. The minimum allowed value is 1 second and
 	// the default is 30s.
 	// Deprecated in Nomad 0.10
-	RetryInterval time.Duration `mapstructure:"retry_interval"`
+	RetryInterval    time.Duration
+	RetryIntervalHCL string `hcl:"retry_interval"`
 
 	// RejoinAfterLeave controls our interaction with the cluster after leave.
 	// When set to false (default), a leave causes Consul to not rejoin
@@ -386,7 +392,8 @@ type ServerJoin struct {
 	// RetryInterval specifies the amount of time to wait in between join
 	// attempts on agent start. The minimum allowed value is 1 second and
 	// the default is 30s.
-	RetryInterval time.Duration `mapstructure:"retry_interval"`
+	RetryInterval    time.Duration
+	RetryIntervalHCL string `hcl:"retry_interval"`
 }
 
 func (s *ServerJoin) Merge(b *ServerJoin) *ServerJoin {
