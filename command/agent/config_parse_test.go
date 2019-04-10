@@ -408,8 +408,13 @@ func removeHelperAttributes(c *Config) *Config {
 }
 
 func TestParseDirectHCL(t *testing.T) {
-	c, _ := ParseConfigFileDirectHCL("./testdata/basic.hcl")
+	c, err := ParseConfigFileDirectHCL("./testdata/basic.hcl")
 	d, _ := ParseConfigFileDirectHCL("./testdata/basic.json")
+
+	if err != nil {
+		t.Fatalf("parse error: %s\n", err)
+	}
+
 	require.EqualValues(t, c, d)
-	require.EqualValues(t, removeHelperAttributes(c), basicConfig)
+	require.EqualValues(t, basicConfig, c)
 }
