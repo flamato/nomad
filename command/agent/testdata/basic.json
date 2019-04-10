@@ -89,13 +89,7 @@
         "a.b.c:80",
         "127.0.0.1:1234"
       ],
-      "state_dir": "/tmp/client-state",
-      "stats": [
-        {
-          "collection_interval": "5s",
-          "data_points": 35
-        }
-      ]
+      "state_dir": "/tmp/client-state"
     }
   ],
   "consul": [
