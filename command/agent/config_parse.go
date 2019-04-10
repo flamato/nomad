@@ -33,12 +33,12 @@ func ParseConfigFile(path string) (*Config, error) {
 	}
 	defer f.Close()
 
-	c, err := ParseConfig(f)
+	config, err := ParseConfig(f)
 	if err != nil {
 		return nil, err
 	}
 
-	return c, nil
+	return config, nil
 }
 
 func ParseConfigFileDirectHCL(path string) (*Config, error) {
