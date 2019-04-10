@@ -116,7 +116,12 @@ func removeCaseFold(xsp *[]string, y string) {
 	xs := *xsp
 	for i, x := range xs {
 		if strings.EqualFold(x, y) {
-			*xsp = append(xs[:i], xs[i+1:]...)
+			xs = append(xs[:i], xs[i+1:]...)
+			if len(xs) == 0 {
+				*xsp = nil
+			} else {
+				*xsp = xs
+			}
 			return
 		}
 	}
