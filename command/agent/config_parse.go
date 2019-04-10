@@ -73,12 +73,18 @@ func ParseConfigFileDirectHCL(path string) (*Config, error) {
 		convDur{"server.heartbeat_grace", &c.Server.HeartbeatGrace, &c.Server.HeartbeatGraceHCL},
 		convDur{"server.min_heartbeat_ttl", &c.Server.MinHeartbeatTTL, &c.Server.MinHeartbeatTTLHCL},
 		convDur{"server.retry_interval", &c.Server.RetryInterval, &c.Server.RetryIntervalHCL},
+		convDur{"server.server_join.retry_interval", &c.Server.ServerJoin.RetryInterval, &c.Server.ServerJoin.RetryIntervalHCL},
 		convDur{"consul.timeout", &c.Consul.Timeout, &c.Consul.TimeoutHCL},
 
 		convDur{"autopilot.server_stabilization_time", &c.Autopilot.ServerStabilizationTime, &c.Autopilot.ServerStabilizationTimeHCL},
 		convDur{"autopilot.last_contact_threshold", &c.Autopilot.LastContactThreshold, &c.Autopilot.LastContactThresholdHCL},
 		convDur{"telemetry.collection_interval", &c.Telemetry.collectionInterval, &c.Telemetry.CollectionInterval},
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = extraKeys(c)
 	if err != nil {
 		return nil, err
 	}
@@ -106,17 +112,68 @@ func durations(xs []convDur) error {
 	return nil
 }
 
-type ex struct {
-	path string
-	part interface{}
+func removeCaseFold(xsp *[]string, y string) {
+	xs := *xsp
+	for i, x := range xs {
+		if strings.EqualFold(x, y) {
+			*xsp = append(xs[:i], xs[i+1:]...)
+			return
+		}
+	}
 }
 
-func extraKeys(xs []ex) error {
-	for _, x := range xs {
-		unused := reflect.Value(x).Type().FieldByName("unusedKeys")
-		if len(unused) != 0 {
-			return fmt.Errorf("%s unexpected keys %s", x.path, strings.Join(unused, ", "))
+func extraKeys(c *Config) error {
+	// plugins are hcl:,expand, which makes top level keys into a
+	// slice of objects. This pushes a couple of extra unexpected
+	// keys up to the top in the current hcl build
+	// for _, p := range c.Plugins {
+	// 	removeCaseFold(&c.ExtraKeysHCL, p.Name)
+	// }
+	removeCaseFold(&c.ExtraKeysHCL, "config")
+	return extraKeysImpl("", reflect.ValueOf(*c))
+}
+
+// extraKeysImpl returns an error if any extraKeys array is not empty
+func extraKeysImpl(path string, val reflect.Value) error {
+	stype := val.Type()
+	for i := 0; i < stype.NumField(); i++ {
+		ftype := stype.Field(i)
+		fval := val.Field(i)
+
+		name := ftype.Name
+		prop := ""
+		tagSplit(ftype, "hcl", &name, &prop)
+
+		if fval.Kind() == reflect.Ptr {
+			fval = reflect.Indirect(fval)
 		}
+
+		// struct? recurse. add the struct's key to the path
+		if fval.Kind() == reflect.Struct {
+			err := extraKeysImpl(path+"."+name, fval)
+			if err != nil {
+				return err
+			}
+		}
+
+		if "unusedKeys" == prop {
+			if ks, ok := fval.Interface().([]string); ok &&
+				len(ks) != 0 {
+				return fmt.Errorf("%s unexpected keys %s", path, strings.Join(ks, ", "))
+			}
+		}
+	}
+	return nil
+}
+
+func tagSplit(field reflect.StructField, tagName string, vars ...*string) {
+	tag := strings.Split(field.Tag.Get(tagName), ",")
+	end := len(tag) - 1
+	for i, s := range vars {
+		if i > end {
+			return
+		}
+		*s = tag[i]
 	}
 }
 
