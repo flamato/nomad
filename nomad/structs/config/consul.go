@@ -89,6 +89,9 @@ type ConsulConfig struct {
 	// ClientAutoJoin enables Nomad servers to find addresses of Nomad servers
 	// and register with them
 	ClientAutoJoin *bool `mapstructure:"client_auto_join" hcl:"client_auto_join"`
+
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // DefaultConsulConfig() returns the canonical defaults for the Nomad

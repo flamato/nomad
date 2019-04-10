@@ -141,7 +141,10 @@ type Config struct {
 	Autopilot *config.AutopilotConfig `hcl:"autopilot"`
 
 	// Plugins is the set of configured plugins
-	Plugins []*config.PluginConfig `hcl:"plugin,expand"`
+	Plugins []*config.PluginConfig `hcl:"plugin"`
+
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // ClientConfig is configuration specific to the client mode
@@ -230,6 +233,9 @@ type ClientConfig struct {
 
 	// ServerJoin contains information that is used to attempt to join servers
 	ServerJoin *ServerJoin `hcl:"server_join"`
+
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // ACLConfig is configuration specific to the ACL system
@@ -255,6 +261,9 @@ type ACLConfig struct {
 	// from the authoritative region. This must be a valid management token
 	// within the authoritative region.
 	ReplicationToken string `hcl:"replication_token"`
+
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // ServerConfig is configuration specific to the server mode
@@ -370,6 +379,9 @@ type ServerConfig struct {
 
 	// ServerJoin contains information that is used to attempt to join servers
 	ServerJoin *ServerJoin `hcl:"server_join"`
+
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // ServerJoin is used in both clients and servers to bootstrap connections to
@@ -394,6 +406,9 @@ type ServerJoin struct {
 	// the default is 30s.
 	RetryInterval    time.Duration
 	RetryIntervalHCL string `hcl:"retry_interval"`
+
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 func (s *ServerJoin) Merge(b *ServerJoin) *ServerJoin {
@@ -533,6 +548,9 @@ type Telemetry struct {
 	// (e.g. a specific geo location or datacenter, dc:sfo)
 	// Default: none
 	CirconusBrokerSelectTag string `hcl:"circonus_broker_select_tag"`
+
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // PrefixFilters parses the PrefixFilter field and returns a list of allowed and blocked filters
@@ -559,6 +577,8 @@ type Ports struct {
 	HTTP int `hcl:"http"`
 	RPC  int `hcl:"rpc"`
 	Serf int `hcl:"serf"`
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // Addresses encapsulates all of the addresses we bind to for various
@@ -567,6 +587,8 @@ type Addresses struct {
 	HTTP string `hcl:"http"`
 	RPC  string `hcl:"rpc"`
 	Serf string `hcl:"serf"`
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // AdvertiseAddrs is used to control the addresses we advertise out for
@@ -576,6 +598,8 @@ type AdvertiseAddrs struct {
 	HTTP string `hcl:"http"`
 	RPC  string `hcl:"rpc"`
 	Serf string `hcl:"serf"`
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 type Resources struct {
@@ -583,6 +607,8 @@ type Resources struct {
 	MemoryMB      int    `hcl:"memory"`
 	DiskMB        int    `hcl:"disk"`
 	ReservedPorts string `hcl:"reserved_ports"`
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // CanParseReserved returns if the reserved ports specification is parsable.

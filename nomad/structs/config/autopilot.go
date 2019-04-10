@@ -37,6 +37,9 @@ type AutopilotConfig struct {
 	// (Enterprise-only) EnableCustomUpgrades specifies whether to enable using custom
 	// upgrade versions when performing migrations.
 	EnableCustomUpgrades *bool `mapstructure:"enable_custom_upgrades" hcl:"enable_custom_upgrades"`
+
+	// ExtraKeysHCL is used by hcl to surface unexpected keys
+	ExtraKeysHCL []string `hcl:",unusedKeys"`
 }
 
 // DefaultAutopilotConfig() returns the canonical defaults for the Nomad
